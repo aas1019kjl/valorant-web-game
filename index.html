@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VALORANT Web Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #0a0e27;
+            color: #fff;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100vh;
+        }
+
+        #hud {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        #crosshair {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 30px;
+            height: 30px;
+            border: 2px solid #00ff00;
+            border-radius: 50%;
+        }
+
+        #crosshair::before,
+        #crosshair::after {
+            content: '';
+            position: absolute;
+            background-color: #00ff00;
+        }
+
+        #crosshair::before {
+            width: 2px;
+            height: 8px;
+            left: 50%;
+            top: -12px;
+            transform: translateX(-50%);
+        }
+
+        #crosshair::after {
+            width: 8px;
+            height: 2px;
+            left: -12px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        #playerInfo {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 15px;
+            border: 2px solid #ff4655;
+            border-radius: 5px;
+            min-width: 250px;
+        }
+
+        #playerInfo h3 {
+            color: #ff4655;
+            margin-bottom: 10px;
+        }
+
+        .stat-bar {
+            margin: 8px 0;
+            font-size: 14px;
+        }
+
+        .bar {
+            width: 100%;
+            height: 20px;
+            background: #333;
+            border: 1px solid #666;
+            margin-top: 4px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00ff00, #00aa00);
+            transition: width 0.1s;
+        }
+
+        .bar-fill.low {
+            background: linear-gradient(90deg, #ff4655, #cc0000);
+        }
+
+        #abilities {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 15px;
+            border: 2px solid #0099ff;
+            border-radius: 5px;
+        }
+
+        #abilities h3 {
+            color: #0099ff;
+            margin-bottom: 10px;
+        }
+
+        .ability {
+            margin: 8px 0;
+            padding: 8px;
+            background: rgba(0, 100, 150, 0.3);
+            border: 1px solid #0099ff;
+            border-radius: 3px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .ability:hover {
+            background: rgba(0, 150, 200, 0.5);
+        }
+
+        .ability.cooldown {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        #radar {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 200px;
+            height: 200px;
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid #0099ff;
+            border-radius: 5px;
+        }
+
+        #radarCanvas {
+            width: 100%;
+            height: 100%;
+        }
+
+        #message {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.9);
+            padding: 20px 40px;
+            border: 2px solid #ff4655;
+            border-radius: 5px;
+            font-size: 24px;
+            font-weight: bold;
+            display: none;
+            text-align: center;
+        }
+
+        #message.show {
+            display: block;
+            animation: fade 3s forwards;
+        }
+
+        @keyframes fade {
+            0% {
+                opacity: 1;
+            }
+            80% {
+                opacity: 1;
+            }
+            100% {
+                opacity: 0;
+            }
+        }
+
+        #debug {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px;
+            border: 1px solid #999;
+            font-size: 12px;
+            color: #00ff00;
+            font-family: monospace;
+        }
+
+        .controls {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.7);
+            padding: 15px;
+            border: 2px solid #ffaa00;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        .controls h2 {
+            color: #ffaa00;
+            margin-bottom: 10px;
+        }
+
+        .controls p {
+            font-size: 12px;
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas"></canvas>
+    
+    <div id="hud">
+        <div id="crosshair"></div>
+        
+        <div class="controls">
+            <h2>VALORANT Web Game</h2>
+            <p><strong>W/A/S/D</strong> - Move</p>
+            <p><strong>Mouse</strong> - Look Around</p>
+            <p><strong>Left Click</strong> - Shoot</p>
+            <p><strong>Q/E/R/F</strong> - Abilities</p>
+        </div>
+
+        <div id="playerInfo">
+            <h3>Player Status</h3>
+            <div class="stat-bar">
+                Health: <span id="healthText">100/100</span>
+                <div class="bar">
+                    <div class="bar-fill" id="healthBar" style="width: 100%;"></div>
+                </div>
+            </div>
+            <div class="stat-bar">
+                Shield: <span id="shieldText">0/100</span>
+                <div class="bar">
+                    <div class="bar-fill" id="shieldBar" style="width: 0%; background: linear-gradient(90deg, #00ccff, #0088ff);"></div>
+                </div>
+            </div>
+            <div class="stat-bar">
+                Ammo: <span id="ammoText">30/90</span>
+            </div>
+            <div class="stat-bar">
+                Ultimate: <span id="ultText">0/100</span>
+                <div class="bar">
+                    <div class="bar-fill" id="ultBar" style="width: 0%; background: linear-gradient(90deg, #ffaa00, #ff6600);"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="abilities">
+            <h3>Abilities</h3>
+            <div class="ability" id="abilityQ">Q - Smoke (Ready)</div>
+            <div class="ability" id="abilityE">E - Heal (Ready)</div>
+            <div class="ability" id="abilityR">R - Stun (Ready)</div>
+            <div class="ability" id="abilityF">F - Ultimate (0%)</div>
+        </div>
+
+        <div id="radar">
+            <canvas id="radarCanvas"></canvas>
+        </div>
+
+        <div id="message"></div>
+        <div id="debug"></div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="game.js"></script>
+</body>
+</html>
