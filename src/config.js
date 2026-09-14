@@ -1,0 +1,65 @@
+export const CONFIG = {
+  MAP_SIZE: 200,
+  WALL_HEIGHT: 6,
+  PLAYER_SPEED: 0.28,
+  PLAYER_FRICTION: 0.85,
+  MOUSE_SENSITIVITY: 0.0022,
+  GRAVITY: 0.025,
+  GROUND_Y: 1,
+
+  MAX_HEALTH: 100,
+  MAX_SHIELD: 50,
+  MAGAZINE_SIZE: 30,
+  MAX_AMMO: 90,
+  RELOAD_TIME: 2500,
+
+  SHOOT_COOLDOWN: 110,
+  PROJECTILE_SPEED: 3,
+  PROJECTILE_DAMAGE: 25,
+  ULT_PROJECTILE_DAMAGE: 50,
+  PROJECTILE_LIFE: 6,
+
+  BOT_COUNT: 5,
+  BOT_SPEED_MULT: 0.78,
+  BOT_SHOOT_CHANCE: 0.045,
+  BOT_SHOOT_RANGE: 55,
+  BOT_ABILITY_CHANCE: 0.012,
+  BOT_ULT_CHANCE: 0.006,
+
+  ABILITIES: {
+    Q: { name: 'Smoke',  maxCooldown: 12 },
+    E: { name: 'Heal',   maxCooldown: 20 },
+    R: { name: 'Stun',   maxCooldown: 30 },
+    F: { name: 'Ultimate', maxCooldown: 0 },
+  },
+
+  SMOKE_DURATION: 8000,
+  SMOKE_RADIUS: 8,
+  HEAL_DURATION: 5000,
+  HEAL_RATE: 0.5,
+  STUN_RADIUS: 20,
+  STUN_DURATION: 2,
+  ULT_PROJECTILES: 10,
+
+  ULT_PER_HIT: 5,
+  ULT_PASSIVE_RATE: 0.3,
+  ULT_THRESHOLD: 100,
+
+  RESPAWN_DELAY: 3000,
+  RADAR_SIZE: 200,
+};
+
+export const COLORS = {
+  BG: 0x0a0e27,
+  GROUND: 0x2a2d3e,
+  WALL: 0x4a4d6e,
+  OBSTACLE: 0x3a3d5e,
+  PLAYER: 0x44ff66,
+  PLAYER_HEAD: 0x66ff88,
+  BOT: 0xff4655,
+  BOT_HEAD: 0xff6677,
+  PROJECTILE: 0xffff44,
+  ULT_PROJECTILE: 0xffaa00,
+  SMOKE: 0x888888,
+  LIGHT: 0xffffff,
+};

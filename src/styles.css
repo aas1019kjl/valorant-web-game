@@ -1,0 +1,306 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --red: #ff4655;
+  --blue: #0099ff;
+  --green: #00ff66;
+  --amber: #ffaa00;
+  --bg: #0a0e27;
+  --panel: rgba(0, 0, 0, 0.72);
+  --border: rgba(255, 255, 255, 0.12);
+  --text: #ffffff;
+  --text-dim: rgba(255, 255, 255, 0.6);
+}
+
+body {
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  overflow: hidden;
+  user-select: none;
+}
+
+canvas#gameCanvas {
+  display: block;
+  width: 100vw;
+  height: 100vh;
+}
+
+#hud {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* Crosshair */
+#crosshair {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 28px;
+  height: 28px;
+}
+#crosshair::before,
+#crosshair::after {
+  content: '';
+  position: absolute;
+  background: var(--green);
+  box-shadow: 0 0 4px rgba(0, 255, 102, 0.6);
+}
+#crosshair::before {
+  width: 2px; height: 10px;
+  left: 50%; top: 50%;
+  transform: translate(-50%, -50%);
+}
+#crosshair::after {
+  width: 10px; height: 2px;
+  left: 50%; top: 50%;
+  transform: translate(-50%, -50%);
+}
+#crosshair .dot {
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 3px; height: 3px;
+  background: var(--green);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+}
+
+/* Controls hint */
+.controls {
+  position: absolute;
+  top: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--panel);
+  padding: 12px 24px;
+  border: 1px solid var(--amber);
+  border-radius: 6px;
+  text-align: center;
+  backdrop-filter: blur(4px);
+}
+.controls h2 {
+  color: var(--amber);
+  font-size: 14px;
+  letter-spacing: 2px;
+  margin-bottom: 6px;
+}
+.controls p {
+  font-size: 11px;
+  color: var(--text-dim);
+  margin: 2px 0;
+}
+.controls strong { color: var(--text); }
+
+/* Player info panel */
+#playerInfo {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  background: var(--panel);
+  padding: 16px 18px;
+  border: 1px solid var(--red);
+  border-radius: 6px;
+  min-width: 260px;
+  backdrop-filter: blur(4px);
+}
+#playerInfo h3 {
+  color: var(--red);
+  font-size: 13px;
+  letter-spacing: 1.5px;
+  margin-bottom: 12px;
+}
+.stat-bar {
+  margin: 8px 0;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.stat-bar .label {
+  color: var(--text-dim);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  min-width: 60px;
+}
+.stat-bar .value {
+  font-size: 13px;
+  font-weight: 600;
+  margin-left: auto;
+}
+.bar {
+  width: 100%;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.bar-fill {
+  height: 100%;
+  width: 100%;
+  background: linear-gradient(90deg, var(--green), #00aa44);
+  border-radius: 3px;
+  transition: width 0.15s ease;
+}
+.bar-fill.low {
+  background: linear-gradient(90deg, var(--red), #cc0033);
+}
+.bar-fill.shield {
+  background: linear-gradient(90deg, #00ccff, #0066ff);
+}
+.bar-fill.ult {
+  background: linear-gradient(90deg, var(--amber), #ff6600);
+}
+
+/* Abilities */
+#abilities {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  background: var(--panel);
+  padding: 16px;
+  border: 1px solid var(--blue);
+  border-radius: 6px;
+  backdrop-filter: blur(4px);
+}
+#abilities h3 {
+  color: var(--blue);
+  font-size: 13px;
+  letter-spacing: 1.5px;
+  margin-bottom: 10px;
+}
+.ability {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 6px 0;
+  padding: 8px 12px;
+  background: rgba(0, 100, 200, 0.15);
+  border: 1px solid rgba(0, 153, 255, 0.4);
+  border-radius: 4px;
+  font-size: 13px;
+  transition: all 0.2s;
+}
+.ability .key {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px; height: 22px;
+  background: var(--blue);
+  color: #fff;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.ability.cooldown {
+  opacity: 0.45;
+}
+.ability.cooldown .key {
+  background: rgba(0, 153, 255, 0.3);
+}
+.ability.ready .key {
+  box-shadow: 0 0 8px rgba(0, 153, 255, 0.5);
+}
+
+/* Radar */
+#radar {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 200px;
+  height: 200px;
+  background: rgba(0, 0, 0, 0.8);
+  border: 1px solid var(--blue);
+  border-radius: 6px;
+  overflow: hidden;
+}
+#radarCanvas {
+  width: 100%;
+  height: 100%;
+}
+
+/* Kill feed */
+#killFeed {
+  position: absolute;
+  top: 60px;
+  right: 230px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: flex-end;
+}
+.kill-entry {
+  background: var(--panel);
+  padding: 4px 12px;
+  border-radius: 4px;
+  font-size: 12px;
+  animation: slideIn 0.3s ease, fadeOut 0.5s ease 4s forwards;
+}
+.kill-entry .killer { color: var(--green); font-weight: 600; }
+.kill-entry .victim { color: var(--red); font-weight: 600; }
+@keyframes slideIn {
+  from { transform: translateX(40px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+@keyframes fadeOut {
+  to { opacity: 0; transform: translateX(40px); }
+}
+
+/* Debug */
+#debug {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  background: var(--panel);
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  font-size: 11px;
+  color: var(--green);
+  font-family: 'Consolas', monospace;
+  white-space: pre;
+  line-height: 1.5;
+}
+
+/* Center message */
+#centerMessage {
+  position: absolute;
+  top: 35%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-shadow: 0 0 20px rgba(255, 70, 85, 0.5);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+#centerMessage.show {
+  opacity: 1;
+  animation: pulse 2s ease;
+}
+@keyframes pulse {
+  0%, 100% { transform: translate(-50%, -50%) scale(1); }
+  50% { transform: translate(-50%, -50%) scale(1.05); }
+}
+
+/* Damage vignette */
+#damageVignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  box-shadow: inset 0 0 120px rgba(255, 0, 0, 0);
+  transition: box-shadow 0.3s ease;
+}
+#damageVignette.hit {
+  box-shadow: inset 0 0 120px rgba(255, 0, 0, 0.6);
+}
